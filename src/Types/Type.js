@@ -1,40 +1,36 @@
-var Request = require('../Request.js').request;
-
 function Type(name, config){
- 	var self = this;
-	this.name = name;
+    var self = this;
+    this.name = name;
     this.config = config || [];
     this.value = null;
 
-    this.isDraft = false;
-
- 	console.log('Counter:', this.name, this.config);
- 
+    this.isDraft = false; 
 };
 
 Type.prototype.set = function(value) {
- 	console.log('please implement set method');
+    console.log('please implement set method');
 };
 
 Type.prototype.get = function(value) {
-	console.log('please implement get method');
+    console.log('please implement get method');
 };
 
 Type.prototype.draft = function(value) {
-	if ( value != 0 ) this.isDraft = true;
-	else this.isDraft = false;
+    if ( value != 0 ) this.isDraft = true;
+    else this.isDraft = false;
 
-	return this.isDraft;
+    return this.isDraft;
 }
 
 Type.prototype.commit = function() {
-	if ( !this.isDraft ) return true;
+    if ( !this.isDraft ) return false;
+    this.isDraft = false;
 
-	var req = new Request();
-  	req.send(
-  		'/v/' + this.name,
-  		this.get()
-  	);
+    return {
+        name: this.name,
+        path: '/v/' + this.name,
+        payload: this.get()
+    };
 };
 
 exports.abstract = Type;

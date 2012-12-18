@@ -1,10 +1,12 @@
+var Request = require('./Request.js').request;
 var Counter = require('./Types/Counter.js').type;
-
 
 function DucksboardBackend(startupTime, config, emitter){
     var self = this;
     this.metrics = {};
     this.config = config.ducksboard || [];
+    this.request = new Request(this.config);
+
     this.init();
     
     emitter.on('flush', function(timestamp, metrics) { console.log(metrics); self.flush(timestamp, metrics); });
@@ -12,7 +14,10 @@ function DucksboardBackend(startupTime, config, emitter){
 };
 
 DucksboardBackend.prototype.init = function() {
-    for (name in this.config.metrics) this.instanceMetric(name, this.config.metrics[name]);
+    for (name in this.config.metrics) {
+        console.log('Loading metric:', name, this.config.metrics[name]);
+        this.instanceMetric(name, this.config.metrics[name]);
+    }
 };
 
 DucksboardBackend.prototype.instanceMetric = function(name, config) {
@@ -30,6 +35,8 @@ DucksboardBackend.prototype.status = function(callback) {
 };
 
 DucksboardBackend.prototype.flush = function(timestamp, metrics) {
+    console.log('Flushing stats at', new Date(timestamp * 1000).toString());
+
     for ( metric in metrics.counters ) {
         if ( this.metrics[metric] ) this.metrics[metric].set(metrics.counters[metric], true);
     } 
@@ -38,7 +45,19 @@ DucksboardBackend.prototype.flush = function(timestamp, metrics) {
 };
 
 DucksboardBackend.prototype.commit = function() {
-    for ( metric in this.metrics ) this.metrics[metric].commit();
+    var queue = [];
+    for ( metric in this.metrics ) {
+        var commit = this.metrics[metric].commit() 
+        if ( commit ) queue.push(commit);
+    }
+
+    for ( key in queue) {
+        var commit = queue[key];
+        console.log('Requesting:', commit.name, commit.payload);
+        this.request.send(commit.path, commit.payload);
+    }
+
+    console.log('Commit: %d metric(s) pushed to the server.', queue.length);
 };
 
 exports.backend = DucksboardBackend;

@@ -1,0 +1,20 @@
+---
+waitingWidget:
+    metrics: gearman.ymailer.iunaites.waiting
+    widget: counter
+runningWidget:
+    metrics: gearman.ymailer.iunaites.running
+    widget: counter
+resultsWidget:
+    widget: box
+    metrics: 
+        - gearman.ymailer.iunaites.running
+        - gearman.ymailer.iunaites.done
+        - gearman.ymailer.iunaites.warning
+leaderboardWidget:
+    widget: leaderboard.status
+    metrics: 
+        - gearman.ymailer.iunaites.running
+        - gearman.ymailer.iunaites.done
+        - gearman.ymailer.iunaites.warning
+...

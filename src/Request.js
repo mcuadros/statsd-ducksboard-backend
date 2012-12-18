@@ -1,14 +1,10 @@
 var Socket = require('https');
 
-function Request(){
+function Request(config){
   var self = this;
-  this.host = 'push.ducksboard.com';
-  this.port = 443;
-  this.apikey = 'YKXqSeBaoynCqSmaXzImKnaqEJrncLFgJniegTWvRqJZFm1KOz';
-};
-
-Request.prototype.setAPIKey = function(apikey) {
-    this.apikey = apikey;
+  this.host = config.host || 'push.ducksboard.com';
+  this.port = config.port || 443;
+  this.apikey = config.apikey || false;
 };
 
 Request.prototype.getConfig = function(path, payload) {
