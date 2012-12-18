@@ -1,20 +1,18 @@
 ---
-waitingWidget:
+gearman.ymailer.iunaites.waiting:
+    type: number
     metrics: gearman.ymailer.iunaites.waiting
-    widget: counter
-runningWidget:
+    delta: true
+gearman.ymailer.iunaites.running:
+    type: number
     metrics: gearman.ymailer.iunaites.running
-    widget: counter
-resultsWidget:
-    widget: box
+    delta: true
+100547:
+    type: leaderboard.status
     metrics: 
-        - gearman.ymailer.iunaites.running
+        - gearman.ymailer.iunaites.exception
         - gearman.ymailer.iunaites.done
         - gearman.ymailer.iunaites.warning
-leaderboardWidget:
-    widget: leaderboard.status
-    metrics: 
-        - gearman.ymailer.iunaites.running
-        - gearman.ymailer.iunaites.done
-        - gearman.ymailer.iunaites.warning
+        - gearman.ymailer.iunaites.fail
+
 ...

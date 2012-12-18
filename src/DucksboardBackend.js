@@ -1,9 +1,10 @@
 var Request = require('./Request.js').request;
-var Counter = require('./Types/Counter.js').type;
+var Number = require('./Types/Number.js').type;
+var Leaderboard = require('./Types/Leaderboard.js').type;
 
 function DucksboardBackend(startupTime, config, emitter){
     var self = this;
-    this.metrics = {};
+    this.widgets = {};
     this.config = config.ducksboard || [];
     this.request = new Request(this.config);
 
@@ -14,16 +15,19 @@ function DucksboardBackend(startupTime, config, emitter){
 };
 
 DucksboardBackend.prototype.init = function() {
-    for (name in this.config.metrics) {
-        console.log('Loading metric:', name, this.config.metrics[name]);
-        this.instanceMetric(name, this.config.metrics[name]);
+    for (name in this.config.widgets) {
+        console.log('Loading widget:', name, this.config.widgets[name]);
+        this.instanceWidget(name, this.config.widgets[name]);
     }
 };
 
-DucksboardBackend.prototype.instanceMetric = function(name, config) {
-    switch(config.type) {
-        case 'counter': 
-            this.metrics[name] = new Counter(name, config);
+DucksboardBackend.prototype.instanceWidget = function(name, config) {
+    switch(config.type.split('.')[0]) {
+        case 'number': 
+            this.widgets[name] = new Number(name, config);
+            break;
+        case 'leaderboard': 
+            this.widgets[name] = new Leaderboard(name, config);
             break;
         default:
             console.error('not valid metric type'); 
@@ -36,18 +40,30 @@ DucksboardBackend.prototype.status = function(callback) {
 
 DucksboardBackend.prototype.flush = function(timestamp, metrics) {
     console.log('Flushing stats at', new Date(timestamp * 1000).toString());
-
-    for ( metric in metrics.counters ) {
-        if ( this.metrics[metric] ) this.metrics[metric].set(metrics.counters[metric], true);
-    } 
+    for ( metric in metrics.counters ) this.apply(metric, metrics.counters[metric]);
 
     this.commit();
 };
 
+DucksboardBackend.prototype.apply = function(metric, value) {
+    var done = false;
+    for ( widgetName in this.widgets ) {
+        var widget = this.widgets[widgetName];
+        //TODO: meter setter con nombre de clave
+        if ( widget.accept(metric) ) {
+            console.log('Metric %s accepted by %s', metric, widgetName);
+            widget.set(value, metric);
+            done = true;
+        }
+    }
+
+    return done;
+};
+
 DucksboardBackend.prototype.commit = function() {
     var queue = [];
-    for ( metric in this.metrics ) {
-        var commit = this.metrics[metric].commit() 
+    for ( widget in this.widgets ) {
+        var commit = this.widgets[widget].commit() 
         if ( commit ) queue.push(commit);
     }
 
@@ -57,7 +73,7 @@ DucksboardBackend.prototype.commit = function() {
         this.request.send(commit.path, commit.payload);
     }
 
-    console.log('Commit: %d metric(s) pushed to the server.', queue.length);
+    console.log('Commit: %d widget(s) pushed to the server.', queue.length);
 };
 
 exports.backend = DucksboardBackend;

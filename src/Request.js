@@ -24,16 +24,15 @@ Request.prototype.getConfig = function(path, payload) {
 Request.prototype.send = function(path, payload) {
     var payload = JSON.stringify(payload);
     var options = this.getConfig(path, payload);
-    console.log(options,payload);
 
     var request = Socket.request(options, function(res) {
         console.log('STATUS: ' + res.statusCode);
-        console.log('HEADERS: ' + JSON.stringify(res.headers));
+        //console.log('HEADERS: ' + JSON.stringify(res.headers));
         res.setEncoding('utf8');
         
-        res.on('data', function (chunk) {
-            console.log('BODY: ' + chunk);
-        });
+        //res.on('data', function (chunk) {
+        //    console.log('BODY: ' + chunk);
+        //});
     });
 
    // request.setHeader("Content-Type", "text/html");
