@@ -9,10 +9,19 @@ gearman.ymailer.iunaites.running:
     delta: true
 100547:
     type: leaderboard.status
+    limit: 5|100
     metrics: 
         - gearman.ymailer.iunaites.exception
         - gearman.ymailer.iunaites.done
         - gearman.ymailer.iunaites.warning
         - gearman.ymailer.iunaites.fail
-
+100539:
+    type: leaderboard.status
+    metrics: 
+        failLabel: 
+            metric: gearman.ymailer.iunaites.fail
+            limit: 5|10
+        doneLabel: 
+            metric: gearman.ymailer.iunaites.done
+            limit: 2|5
 ...

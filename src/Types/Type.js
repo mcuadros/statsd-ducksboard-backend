@@ -5,6 +5,10 @@ function Type(name, config){
     this.name = name;
     this.config = config;
 
+    this.initialize(name, config);
+};
+
+Type.prototype.initialize = function(name, config) {
     if ( config.metrics instanceof Array ) this.metrics = config.metrics;
     else this.metrics = [config.metrics];
 };
