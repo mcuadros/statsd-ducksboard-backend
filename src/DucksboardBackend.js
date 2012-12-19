@@ -1,3 +1,4 @@
+var util = require("util");
 var Request = require('./Request.js').request;
 var Number = require('./Types/Number.js').type;
 var Leaderboard = require('./Types/Leaderboard.js').type;
@@ -16,7 +17,7 @@ function DucksboardBackend(startupTime, config, emitter){
 
 DucksboardBackend.prototype.init = function() {
     for (name in this.config.widgets) {
-        console.log('Loading widget:', name, this.config.widgets[name]);
+        util.log('Loading widget: ' + name);
         this.instanceWidget(name, this.config.widgets[name]);
     }
 };
@@ -30,8 +31,11 @@ DucksboardBackend.prototype.instanceWidget = function(name, config) {
             this.widgets[name] = new Leaderboard(name, config);
             break;
         default:
-            console.error('not valid metric type'); 
+            util.error('not valid metric type'); 
+            return false;
     }
+
+    return this.widgets[name].setup();
 };
 
 DucksboardBackend.prototype.status = function(callback) {
@@ -39,7 +43,7 @@ DucksboardBackend.prototype.status = function(callback) {
 };
 
 DucksboardBackend.prototype.flush = function(timestamp, metrics) {
-    console.log('Flushing stats at', new Date(timestamp * 1000).toString());
+    util.log('Flushing stats at ' + new Date(timestamp * 1000).toString());
     for ( metric in metrics.counters ) this.apply(metric, metrics.counters[metric]);
 
     this.commit();
@@ -51,7 +55,7 @@ DucksboardBackend.prototype.apply = function(metric, value) {
         var widget = this.widgets[widgetName];
         //TODO: meter setter con nombre de clave
         if ( widget.accept(metric) ) {
-            console.log('Metric %s accepted by %s', metric, widgetName);
+            util.log('Metric ' + metric + ' accepted by ' + widgetName);
             widget.set(value, metric);
             done = true;
         }
@@ -73,7 +77,7 @@ DucksboardBackend.prototype.commit = function() {
         this.request.send(commit.path, commit.payload);
     }
 
-    console.log('Commit: %d widget(s) pushed to the server.', queue.length);
+    util.log('Commit: ' + queue.length + ' widget(s) pushed to the server.');
 };
 
 exports.backend = DucksboardBackend;

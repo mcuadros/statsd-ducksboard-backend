@@ -2,15 +2,15 @@ function Type(name, config){
     var self = this;
     this.value = null;
     this.isDraft = false; 
+    this.metrics = [];
+
     this.name = name;
     this.config = config;
-
-    this.initialize(name, config);
 };
 
-Type.prototype.initialize = function(name, config) {
-    if ( config.metrics instanceof Array ) this.metrics = config.metrics;
-    else this.metrics = [config.metrics];
+Type.prototype.setup = function() {
+    if ( this.config.metrics instanceof Array ) this.metrics = this.config.metrics;
+    else this.metrics = [this.config.metrics];
 };
 
 Type.prototype.accept = function(metric) {
@@ -23,7 +23,7 @@ Type.prototype.draft = function(value) {
     else this.isDraft = false;
 
     return this.isDraft;
-}
+};
 
 Type.prototype.commit = function() {
     if ( !this.isDraft ) return false;
@@ -46,3 +46,7 @@ Type.prototype.get = function() {
 
 
 exports.abstract = Type;
+
+
+
+
