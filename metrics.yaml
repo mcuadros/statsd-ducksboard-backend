@@ -6,37 +6,20 @@ metrics:
     gearman.ymailer.iunaites.fail:
         reset: hour
 widgets:
-    gearman.ymailer.iunaites.waiting:
+    101826:
         type: number
-        metrics: gearman.ymailer.iunaites.waiting
-        delta: true
-    gearman.ymailer.iunaites.running:
-        type: number
-        metrics: gearman.ymailer.iunaites.running
-        delta: true
-    100547:
-        type: leaderboard.status
-        limit: 5|100
-        metrics: !!js/regexp /gearman\.ymailer\.iunaites\.(.*)/i
-    100539:
-        type: leaderboard.status
         metrics: 
-            failLabel: 
-                metric: gearman.ymailer.iunaites.fail
-                limit: 5|10
-            doneLabel: 
-                metric: gearman.ymailer.iunaites.done
-                limit: 2|5
-    none100517:
-        type: non.leaderboard.status
-        limit: 5|100
-        metrics: 
-            - gearman.ymailer.iunaites.exception
-            - gearman.ymailer.iunaites.done
-            - gearman.ymailer.iunaites.warning
-            - gearman.ymailer.iunaites.fail
-    101041:
+            name: gearman.ymailer.iunaites.done
+            type: sum
+    101842:
         type: number
-        metrics: gearman.ymailer.iunaites.done
-        timestamp: true
+        metrics: 
+            name: gearman.ymailer.iunaites.done
+            type: delta
+    101838:
+        type: gauge
+        metrics: 
+            name: gearman.ymailer.iunaites.done
+        from: 
+            value: 50000
 ...

@@ -1,49 +1,73 @@
 function Type(name, config){
     var self = this;
-    this.value = null;
-    this.isDraft = false; 
-    this.metrics = [];
 
     this.name = name;
     this.config = config;
+    this.metrics = [];
+
+    this.updated = null;
+    this.empty = true;
 };
 
 Type.prototype.setup = function() {
-    if ( this.config.metrics instanceof Array ) this.metrics = this.config.metrics;
-    else this.metrics = [this.config.metrics];
+    if ( !Array.isArray(this.config.metrics) ) this.config.metrics = [this.config.metrics];
+    var metrics = {};
+
+    for ( key in this.config.metrics ) {
+        var metric = this.config.metrics[key];
+        metrics[metric.name] = metric;
+    }
+
+    this.config.metrics = metrics;
+    return true;
 };
 
 Type.prototype.accept = function(metric) {
-    if ( this.metrics.indexOf(metric) == -1 ) return false;
-    else return true;
+    var metrics = this.config.metrics;
+    for ( key in metrics) {
+        if ( metrics[key].name == metric ) {
+            this.empty = false;
+            return true;
+        }
+    }
+    
+    return false;
 };
 
-Type.prototype.draft = function(value) {
-    if ( value != 0 ) this.isDraft = true;
-    else this.isDraft = false;
+Type.prototype.apply = function(metric) {
+    if ( !this.accept(metric.name) ) return false;
+    return this.metrics[metric.name] = metric; 
+};
 
-    return this.isDraft;
+Type.prototype.payload = function() {
+    return false;
+};
+
+Type.prototype.value = function(metric, type) {
+    if ( this.empty ) return false;
+
+
+
+   // if ( this.metrics[metric].isDraft === true ) {
+        return this.metrics[metric].get(type);
+    //}
+
+    return false;
 };
 
 Type.prototype.commit = function() {
-    if ( !this.isDraft ) return false;
-    this.isDraft = false;
+    var payload = this.payload();
+    if ( !payload ) return false;
 
+    console.log('payload', payload);
+
+    this.updated = Date.now();
     return {
         name: this.name,
         path: '/v/' + this.name,
-        payload: this.get()
+        payload: payload
     };
 };
-
-Type.prototype.set = function() {
-    console.log('please implement set method');
-};
-
-Type.prototype.get = function() {
-    console.log('please implement get method');
-};
-
 
 exports.abstract = Type;
 

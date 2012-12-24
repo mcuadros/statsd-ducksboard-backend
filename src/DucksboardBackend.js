@@ -4,6 +4,7 @@ var Request = require('./Request.js').request;
 var Metric = require('./Metric.js').metric;
 var Cache = require('./Cache.js').cache;
 
+var Gauge = require('./Types/Gauge.js').type;
 var Number = require('./Types/Number.js').type;
 var Leaderboard = require('./Types/Leaderboard.js').type;
 
@@ -14,20 +15,19 @@ function DucksboardBackend(startupTime, config, emitter){
 
     this.config = config.ducksboard || [];
     this.defs = this.config.definitions;
-    
+
     this.request = new Request(this.config);
     this.cache = new Cache(this.config);
 
     this.init();
     
     emitter.on('flush', function(timestamp, metrics) { self.flush(timestamp, metrics); });
-    emitter.on('status', function(callback) { self.status(callback); });
 };
 
 DucksboardBackend.prototype.init = function() {
-    for (name in this.config.widgets) {
+    for (name in this.defs.widgets) {
         util.log('Loading widget: ' + name);
-        this.instanceWidget(name, this.definitions.widgets[name]);
+        this.instanceWidget(name, this.defs.widgets[name]);
     }
 };
 
@@ -35,6 +35,9 @@ DucksboardBackend.prototype.instanceWidget = function(name, config) {
     switch(config.type.split('.')[0]) {
         case 'number': 
             this.widgets[name] = new Number(name, config);
+            break;
+        case 'gauge': 
+            this.widgets[name] = new Gauge(name, config);
             break;
         case 'leaderboard': 
             this.widgets[name] = new Leaderboard(name, config);
@@ -47,16 +50,10 @@ DucksboardBackend.prototype.instanceWidget = function(name, config) {
     return this.widgets[name].setup();
 };
 
-DucksboardBackend.prototype.status = function(callback) {
-    console.log('status', callback);
-};
-
 DucksboardBackend.prototype.flush = function(timestamp, metrics) {
     util.log('Flushing stats at ' + new Date(timestamp * 1000).toString());
     this.update(metrics.counters);
-
-    //for ( metric in metrics.counters ) this.apply(metric, metrics.counters[metric]);
-    //this.commit();
+    this.commit();
 };
 
 DucksboardBackend.prototype.update = function(counters) {
@@ -64,6 +61,7 @@ DucksboardBackend.prototype.update = function(counters) {
     for ( metric in counters ) {
         if ( !this.metrics[metric] ) {
             this.metrics[metric] = new Metric(metric, this.defs.metrics[metric], this.cache);
+            this.apply(this.metrics[metric]);
         }
 
         if ( this.metrics[metric].set(counters[metric]) ) changes++;
@@ -72,19 +70,14 @@ DucksboardBackend.prototype.update = function(counters) {
     console.log('Changes %d', changes);
 }
 
-DucksboardBackend.prototype.apply = function(metric, value) {
-    var done = false;
-    for ( widgetName in this.widgets ) {
-        var widget = this.widgets[widgetName];
-        //TODO: meter setter con nombre de clave
-        if ( widget.accept(metric) ) {
-            util.log('Metric ' + metric + ' accepted by ' + widgetName);
-            widget.set(value, metric);
-            done = true;
+DucksboardBackend.prototype.apply = function(metric) {
+    for ( name in this.widgets ) {
+        var widget = this.widgets[name];
+        if ( widget.accept(metric.name) ) {
+            util.log('Metric ' + metric.name + ' accepted by ' + name);
+            widget.apply(metric);
         }
     }
-
-    return done;
 };
 
 DucksboardBackend.prototype.commit = function() {

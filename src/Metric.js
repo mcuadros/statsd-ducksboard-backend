@@ -3,6 +3,7 @@ function Metric(name, config, cache){
     this.name = name;
     this.config = config || [];
     this.cache = cache;
+    this.isDraft = false;
 
     this.setup(this.cache.read(this.name));
 };
@@ -24,12 +25,19 @@ Metric.prototype.setup = function(value) {
     };
 };
 
+Metric.prototype.draft = function(value) {
+    if ( !this.config.allowZero && value == 0 ) this.isDraft = false;
+    else if ( this.value.last == value ) this.isDraft = null;
+    else this.isDraft = true;
+
+    return this.isDraft;
+};
+
 Metric.prototype.set = function(value) {
     this.reset();
-    
-    if ( !this.config.allowZero && value == 0 ) return false;
+    if ( this.draft(value) === false )  return false;
 
-    if ( this.value.last ) this.value.delta = this.value.last - value;
+    if ( this.value.last ) this.value.delta = value - this.value.last;
     if ( !this.value.first ) this.value.first = value;
     if ( !this.value.since ) this.value.since = Date.now();
 
@@ -47,6 +55,7 @@ Metric.prototype.set = function(value) {
 };
 
 Metric.prototype.get = function(type) {
+    console.log(this.value);
     return this.value[type];
 };
 
@@ -68,7 +77,7 @@ Metric.prototype.reset = function() {
     }
 
     return true;
-}
+};
 
 exports.metric = Metric;
 
