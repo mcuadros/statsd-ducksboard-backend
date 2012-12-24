@@ -58,7 +58,7 @@ Leaderboard.prototype.accept = function(metric) {
     }
 };
 
-Type.prototype.draft = function(value, metric) {
+Leaderboard.prototype.draft = function(value, metric) {
     if ( !this.value ) this.isDraft = true;
     else if ( !this.value[metric] ) this.isDraft = true;
     else if ( this.value[metric] != value ) this.isDraft = true;

@@ -1,24 +1,33 @@
 var util = require("util");
+
 var Request = require('./Request.js').request;
+var Metric = require('./Metric.js').metric;
+var Cache = require('./Cache.js').cache;
+
 var Number = require('./Types/Number.js').type;
 var Leaderboard = require('./Types/Leaderboard.js').type;
 
 function DucksboardBackend(startupTime, config, emitter){
     var self = this;
     this.widgets = {};
+    this.metrics = {};
+
     this.config = config.ducksboard || [];
+    this.defs = this.config.definitions;
+    
     this.request = new Request(this.config);
+    this.cache = new Cache(this.config);
 
     this.init();
     
-    emitter.on('flush', function(timestamp, metrics) { console.log(metrics); self.flush(timestamp, metrics); });
+    emitter.on('flush', function(timestamp, metrics) { self.flush(timestamp, metrics); });
     emitter.on('status', function(callback) { self.status(callback); });
 };
 
 DucksboardBackend.prototype.init = function() {
     for (name in this.config.widgets) {
         util.log('Loading widget: ' + name);
-        this.instanceWidget(name, this.config.widgets[name]);
+        this.instanceWidget(name, this.definitions.widgets[name]);
     }
 };
 
@@ -44,10 +53,24 @@ DucksboardBackend.prototype.status = function(callback) {
 
 DucksboardBackend.prototype.flush = function(timestamp, metrics) {
     util.log('Flushing stats at ' + new Date(timestamp * 1000).toString());
-    for ( metric in metrics.counters ) this.apply(metric, metrics.counters[metric]);
+    this.update(metrics.counters);
 
-    this.commit();
+    //for ( metric in metrics.counters ) this.apply(metric, metrics.counters[metric]);
+    //this.commit();
 };
+
+DucksboardBackend.prototype.update = function(counters) {
+    var changes = 0;
+    for ( metric in counters ) {
+        if ( !this.metrics[metric] ) {
+            this.metrics[metric] = new Metric(metric, this.defs.metrics[metric], this.cache);
+        }
+
+        if ( this.metrics[metric].set(counters[metric]) ) changes++;
+    }
+
+    console.log('Changes %d', changes);
+}
 
 DucksboardBackend.prototype.apply = function(metric, value) {
     var done = false;
