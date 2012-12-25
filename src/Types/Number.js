@@ -12,8 +12,12 @@ Number.prototype.payload = function() {
     var value = this.value(this.metric);
     if ( !value ) return false;
     
-    if ( value.type == 'delta' ) return {delta:value.data};
-    else return {value:value.data};  
+    var output = {};
+    if ( value.config.type == 'delta' ) output.delta = value.data;
+    else output.value = value.data;  
+
+    if ( value.timestamp ) output.timestamp = value.timestamp;
+    return output;
 };
 
 exports.type = Number;

@@ -47,15 +47,12 @@ Type.prototype.value = function(metric, type) {
     var metric = this.metrics[metric];
     if ( metric.obj === null ) return false;
     
-    var type = type || metric.type;
+    var output = {};
+    output.config = metric
+    output.data = metric.obj.get(type || metric.type);
+    if ( metric.timestamp ) output.timestamp = metric.obj.get('updated');
 
-    var data = metric.obj.get(type);
-    console.log('get', metric.type, data);
-    //if ( this.metrics[metric].isDraft === true ) {
-    return {type:type, data:data};
-    //}
-
-    return false;
+    return output;
 };
 
 Type.prototype.commit = function() {

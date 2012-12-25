@@ -10,15 +10,16 @@ widgets:
         type: number
         metrics: 
             name: gearman.ymailer.iunaites.done
-    101842:
+    101891:
         type: number
         metrics: 
             name: gearman.ymailer.iunaites.done
             type: delta
+            timestamp: true
     101838:
         type: gauge
         metrics: 
             name: gearman.ymailer.iunaites.fail
         from: 
-            name: gearman.ymailer.iunaites.done
+            value: 100
 ...
