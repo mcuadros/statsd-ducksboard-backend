@@ -55,7 +55,6 @@ Metric.prototype.set = function(value) {
 };
 
 Metric.prototype.get = function(type) {
-    console.log(this.value);
     return this.value[type];
 };
 

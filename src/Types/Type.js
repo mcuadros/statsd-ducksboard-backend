@@ -6,37 +6,35 @@ function Type(name, config){
     this.metrics = [];
 
     this.updated = null;
-    this.empty = true;
+    this.defaultType = 'last';
 };
 
 Type.prototype.setup = function() {
-    if ( !Array.isArray(this.config.metrics) ) this.config.metrics = [this.config.metrics];
-    var metrics = {};
-
-    for ( key in this.config.metrics ) {
-        var metric = this.config.metrics[key];
-        metrics[metric.name] = metric;
-    }
-
-    this.config.metrics = metrics;
+    var metrics = this.config.metrics;
+    if ( !Array.isArray(metrics) ) var metrics = [metrics];
+    
+    for ( key in metrics ) this.add(metrics[key]);
     return true;
 };
 
-Type.prototype.accept = function(metric) {
-    var metrics = this.config.metrics;
-    for ( key in metrics) {
-        if ( metrics[key].name == metric ) {
-            this.empty = false;
-            return true;
-        }
-    }
-    
-    return false;
+Type.prototype.add = function(config) {
+    var metric = [];
+    metric.name = config.name || exit();
+    metric.type = config.type || this.defaultType;
+    metric.timestamp = config.timestamp || false;
+    metric.obj = null;
+
+    return this.metrics[metric.name] = metric;
 };
 
-Type.prototype.apply = function(metric) {
-    if ( !this.accept(metric.name) ) return false;
-    return this.metrics[metric.name] = metric; 
+Type.prototype.accept = function(metric) {
+    if ( this.metrics[metric] ) return true;
+    else return false;
+};
+
+Type.prototype.register = function(metricObj) {
+    if ( !this.accept(metricObj.name) ) return false;
+    this.metrics[metricObj.name].obj = metricObj; 
 };
 
 Type.prototype.payload = function() {
@@ -44,12 +42,17 @@ Type.prototype.payload = function() {
 };
 
 Type.prototype.value = function(metric, type) {
-    if ( this.empty ) return false;
+    if ( !this.accept(metric) ) return false;
 
+    var metric = this.metrics[metric];
+    if ( metric.obj === null ) return false;
+    
+    var type = type || metric.type;
 
-
-   // if ( this.metrics[metric].isDraft === true ) {
-        return this.metrics[metric].get(type);
+    var data = metric.obj.get(type);
+    console.log('get', metric.type, data);
+    //if ( this.metrics[metric].isDraft === true ) {
+    return {type:type, data:data};
     //}
 
     return false;

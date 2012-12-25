@@ -10,7 +10,6 @@ widgets:
         type: number
         metrics: 
             name: gearman.ymailer.iunaites.done
-            type: sum
     101842:
         type: number
         metrics: 
@@ -19,7 +18,7 @@ widgets:
     101838:
         type: gauge
         metrics: 
-            name: gearman.ymailer.iunaites.done
+            name: gearman.ymailer.iunaites.fail
         from: 
-            value: 50000
+            name: gearman.ymailer.iunaites.done
 ...

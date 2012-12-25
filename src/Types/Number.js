@@ -1,20 +1,19 @@
 var util = require("util");
 var Type = require('./Type.js').abstract;
 
-function Counter(name, config){
+function Number(name, config){
+    Number.super_.call(this,name,config);
     this.metric = config.metrics.name;
-    Counter.super_.call(this,name,config);
+    this.defaultType = 'sum';
 };
 
-util.inherits(Counter, Type);
-Counter.prototype.payload = function() {    
-    var config = this.config.metrics[this.metric];
-    var value = this.value(this.metric, config.type || 'sum');
+util.inherits(Number, Type);
+Number.prototype.payload = function() {    
+    var value = this.value(this.metric);
     if ( !value ) return false;
-    else {
-        if ( config.type == 'delta' ) return {delta:value};
-        else return {value:value}; 
-    } 
+    
+    if ( value.type == 'delta' ) return {delta:value.data};
+    else return {value:value.data};  
 };
 
-exports.type = Counter;
+exports.type = Number;

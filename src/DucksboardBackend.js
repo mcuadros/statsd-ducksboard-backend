@@ -61,7 +61,7 @@ DucksboardBackend.prototype.update = function(counters) {
     for ( metric in counters ) {
         if ( !this.metrics[metric] ) {
             this.metrics[metric] = new Metric(metric, this.defs.metrics[metric], this.cache);
-            this.apply(this.metrics[metric]);
+            this.register(this.metrics[metric]);
         }
 
         if ( this.metrics[metric].set(counters[metric]) ) changes++;
@@ -70,12 +70,12 @@ DucksboardBackend.prototype.update = function(counters) {
     console.log('Changes %d', changes);
 }
 
-DucksboardBackend.prototype.apply = function(metric) {
+DucksboardBackend.prototype.register = function(metric) {
     for ( name in this.widgets ) {
         var widget = this.widgets[name];
         if ( widget.accept(metric.name) ) {
             util.log('Metric ' + metric.name + ' accepted by ' + name);
-            widget.apply(metric);
+            widget.register(metric);
         }
     }
 };
