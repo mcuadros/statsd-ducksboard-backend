@@ -1,5 +1,5 @@
 var util = require("util");
-var Type = require('./Type.js').abstract;
+var Format = require('./Format.js').abstract;
 
 function Leaderboard(name, config, format){
     Leaderboard.super_.call(this,name,config);
@@ -10,7 +10,7 @@ function Leaderboard(name, config, format){
     this.format = format;
 };
 
-util.inherits(Leaderboard, Type);
+util.inherits(Leaderboard, Format);
 Leaderboard.prototype.setup = function() {
     if ( this.config.metrics instanceof Array ) this.setupWithArray();
     else if ( this.config.regexp instanceof RegExp ) this.setupWithRegexp();
@@ -80,4 +80,4 @@ Leaderboard.prototype.payload = function() {
     return { value: { board: board } };
 };
 
-exports.type = Leaderboard;
+exports.format = Leaderboard;

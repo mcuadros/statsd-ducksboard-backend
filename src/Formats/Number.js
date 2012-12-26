@@ -1,11 +1,11 @@
 var util = require("util");
-var Type = require('./Type.js').abstract;
+var Format = require('./Format.js').abstract;
 
 function Number(name, config){
     Number.super_.call(this,name,config);    
 };
 
-util.inherits(Number, Type);
+util.inherits(Number, Format);
 Number.prototype.setup = function() {
     this.metric = this.config.metric.name;
     this.add(this.config.metric);
@@ -24,4 +24,4 @@ Number.prototype.payload = function() {
     return output;
 };
 
-exports.type = Number;
+exports.format = Number;

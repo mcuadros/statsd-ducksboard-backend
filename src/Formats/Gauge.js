@@ -1,11 +1,11 @@
 var util = require("util");
-var Type = require('./Type.js').abstract;
+var Format = require('./Format.js').abstract;
 
 function Gauge(name, config){    
     Gauge.super_.call(this,name,config);
 };
 
-util.inherits(Gauge, Type);
+util.inherits(Gauge, Format);
 Gauge.prototype.setup = function() {
     if ( !this.config.dividend.value ) this.add(this.config.dividend);
     if ( !this.config.divisor.value ) this.add(this.config.divisor);
@@ -32,4 +32,4 @@ Gauge.prototype.payload = function() {
     return {value:dividend/divisor};  
 };
 
-exports.type = Gauge;
+exports.format = Gauge;

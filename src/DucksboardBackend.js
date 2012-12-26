@@ -33,6 +33,11 @@ DucksboardBackend.prototype.init = function() {
 
 DucksboardBackend.prototype.instanceWidget = function(name, config) {
     var format = config.format.split('.');
+
+    var FormatClass = require('./' . format[0] .  '.js').format;
+    this.widgets[name] = new FormatClass(name, config, format[1]);
+    return this.widgets[name].setup();
+    
     switch(format[0]) {
         case 'number': 
             this.widgets[name] = new Number(name, config);

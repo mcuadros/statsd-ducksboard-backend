@@ -1,4 +1,4 @@
-function Type(name, config){
+function Format(name, config){
     var self = this;
 
     this.name = name;
@@ -9,7 +9,7 @@ function Type(name, config){
     this.defaultType = config.type || 'sum';
 };
 
-Type.prototype.add = function(config) {
+Format.prototype.add = function(config) {
     var metric = [];
     metric.name = config.name || exit();
     metric.type = config.type || this.defaultType;
@@ -19,21 +19,21 @@ Type.prototype.add = function(config) {
     return this.metrics[metric.name] = metric;
 };
 
-Type.prototype.accept = function(metric) {
+Format.prototype.accept = function(metric) {
     if ( this.metrics[metric] ) return true;
     else return false;
 };
 
-Type.prototype.register = function(obj) {
+Format.prototype.register = function(obj) {
     if ( !this.accept(obj.name) ) return false;
     this.metrics[obj.name].obj = obj; 
 };
 
-Type.prototype.payload = function() {
+Format.prototype.payload = function() {
     return false;
 };
 
-Type.prototype.value = function(metric, type) {
+Format.prototype.value = function(metric, type) {
     if ( !this.accept(metric) ) return false;
 
     var metric = this.metrics[metric];
@@ -47,11 +47,9 @@ Type.prototype.value = function(metric, type) {
     return output;
 };
 
-Type.prototype.commit = function() {
+Format.prototype.commit = function() {
     var payload = this.payload();
     if ( !payload ) return false;
-
-    console.log('payload', payload);
 
     this.updated = Date.now();
     return {
@@ -61,7 +59,7 @@ Type.prototype.commit = function() {
     };
 };
 
-exports.abstract = Type;
+exports.abstract = Format;
 
 
 
