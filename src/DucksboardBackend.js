@@ -4,9 +4,6 @@ var Request = require('./Request.js').request;
 var Metric = require('./Metric.js').metric;
 var Cache = require('./Cache.js').cache;
 
-var Gauge = require('./Types/Gauge.js').type;
-var Number = require('./Types/Number.js').type;
-var Leaderboard = require('./Types/Leaderboard.js').type;
 
 function DucksboardBackend(startupTime, config, emitter){
     var self = this;
@@ -26,38 +23,21 @@ function DucksboardBackend(startupTime, config, emitter){
 
 DucksboardBackend.prototype.init = function() {
     for (name in this.defs.widgets) {
-        util.log('Loading widget: ' + name);
-        this.instanceWidget(name, this.defs.widgets[name]);
+        util.log('loading widget: ' + name);
+        this.instance(name, this.defs.widgets[name]);
     }
 };
 
-DucksboardBackend.prototype.instanceWidget = function(name, config) {
+DucksboardBackend.prototype.instance = function(name, config) {
     var format = config.format.split('.');
 
-    var FormatClass = require('./' . format[0] .  '.js').format;
+    var FormatClass = require('./Formats/' + format[0] +  '.js').format;
     this.widgets[name] = new FormatClass(name, config, format[1]);
-    return this.widgets[name].setup();
-    
-    switch(format[0]) {
-        case 'number': 
-            this.widgets[name] = new Number(name, config);
-            break;
-        case 'gauge': 
-            this.widgets[name] = new Gauge(name, config);
-            break;
-        case 'leaderboard': 
-            this.widgets[name] = new Leaderboard(name, config, format[1]);
-            break;
-        default:
-            util.error('not valid metric type'); 
-            return false;
-    }
-
     return this.widgets[name].setup();
 };
 
 DucksboardBackend.prototype.flush = function(timestamp, metrics) {
-    util.log('Flushing stats at ' + new Date(timestamp * 1000).toString());
+    util.log('flushing stats at ' + new Date(timestamp * 1000).toString());
     this.update(metrics.counters);
     this.commit();
 };
@@ -73,14 +53,14 @@ DucksboardBackend.prototype.update = function(counters) {
         if ( this.metrics[metric].set(counters[metric]) ) changes++;
     }
 
-    console.log('Changes %d', changes);
+    util.log('changes ' + changes + ' received');
 }
 
 DucksboardBackend.prototype.register = function(metric) {
     for ( name in this.widgets ) {
         var widget = this.widgets[name];
         if ( widget.accept(metric.name) ) {
-            util.log('Metric ' + metric.name + ' accepted by ' + name);
+            util.log('metric ' + metric.name + ' accepted by ' + name);
             widget.register(metric);
         }
     }
@@ -95,11 +75,10 @@ DucksboardBackend.prototype.commit = function() {
 
     for ( key in queue) {
         var commit = queue[key];
-        console.log('Requesting:', commit.name, commit.payload);
         this.request.send(commit.path, commit.payload);
     }
 
-    util.log('Commit: ' + queue.length + ' widget(s) pushed to the server.');
+    util.log('commit: ' + queue.length + ' widget(s) pushed to the server.');
 };
 
 exports.backend = DucksboardBackend;

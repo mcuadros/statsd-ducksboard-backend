@@ -73,8 +73,6 @@ Leaderboard.prototype.payload = function() {
         }
 
         board.push(line);
-
-        console.log('status', line.status);
     }
 
     return { value: { board: board } };

@@ -25,20 +25,17 @@ Request.prototype.send = function(path, payload) {
     var payload = JSON.stringify(payload);
     var options = this.getConfig(path, payload);
 
-    var request = Socket.request(options, function(res) {
-        console.log('STATUS: ' + res.statusCode);
-        //console.log('HEADERS: ' + JSON.stringify(res.headers));
-        res.setEncoding('utf8');
-        
-        //res.on('data', function (chunk) {
-        //    console.log('BODY: ' + chunk);
-        //});
+    var request = Socket.request(options, function(res, path) {
+        if ( res.statusCode != 200 ) {
+            util.log('problem with request: ' + res.statusCode);
+
+        }
     });
 
-   // request.setHeader("Content-Type", "text/html");
-    request.on('error', function(e) {
-      console.log('problem with request: ' + e.message);
+    request.on('error', function(e, path) {
+        util.log('problem with request: ' + e.message);
     });
+
     
     request.write(payload);
 
