@@ -3,24 +3,33 @@ var Type = require('./Type.js').abstract;
 
 function Gauge(name, config){    
     Gauge.super_.call(this,name,config);
-
-    this.defaultType = 'sum';
-    this.metric = config.metrics.name;
-
-    this.from = config.from;
-    if ( !config.from.value ) this.add(config.from);
 };
 
 util.inherits(Gauge, Type);
+Gauge.prototype.setup = function() {
+    if ( !this.config.dividend.value ) this.add(this.config.dividend);
+    if ( !this.config.divisor.value ) this.add(this.config.divisor);
+    return true;
+};
+
+Gauge.prototype.dividend = function() {
+    if ( this.config.dividend.value ) return this.config.dividend.value;
+    var dividend = this.value(this.config.dividend.name);
+    return dividend.data;
+};
+
+Gauge.prototype.divisor = function() {
+    if ( this.config.divisor.value ) return this.config.divisor.value;
+    var divisor = this.value(this.config.divisor.name);
+    return divisor.data;
+};
+
 Gauge.prototype.payload = function() {    
-    var value = this.value(this.metric);
-    if ( !value ) return false;
+    var dividend = this.dividend();
+    var divisor = this.divisor();
 
-    if ( !this.from.value ) var from = this.value(this.from.name);
-    else var from = {data: this.from.value}; 
-
-    if ( !from.data || !value.data ) return false;
-    return {value:value.data/from.data};  
+    if ( !dividend || !divisor ) return false;
+    return {value:dividend/divisor};  
 };
 
 exports.type = Gauge;

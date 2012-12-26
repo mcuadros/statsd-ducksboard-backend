@@ -6,15 +6,7 @@ function Type(name, config){
     this.metrics = [];
 
     this.updated = null;
-    this.defaultType = 'last';
-};
-
-Type.prototype.setup = function() {
-    var metrics = this.config.metrics;
-    if ( !Array.isArray(metrics) ) var metrics = [metrics];
-    
-    for ( key in metrics ) this.add(metrics[key]);
-    return true;
+    this.defaultType = config.type || 'sum';
 };
 
 Type.prototype.add = function(config) {
@@ -32,9 +24,9 @@ Type.prototype.accept = function(metric) {
     else return false;
 };
 
-Type.prototype.register = function(metricObj) {
-    if ( !this.accept(metricObj.name) ) return false;
-    this.metrics[metricObj.name].obj = metricObj; 
+Type.prototype.register = function(obj) {
+    if ( !this.accept(obj.name) ) return false;
+    this.metrics[obj.name].obj = obj; 
 };
 
 Type.prototype.payload = function() {

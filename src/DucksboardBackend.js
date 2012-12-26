@@ -32,7 +32,8 @@ DucksboardBackend.prototype.init = function() {
 };
 
 DucksboardBackend.prototype.instanceWidget = function(name, config) {
-    switch(config.type.split('.')[0]) {
+    var format = config.format.split('.');
+    switch(format[0]) {
         case 'number': 
             this.widgets[name] = new Number(name, config);
             break;
@@ -40,7 +41,7 @@ DucksboardBackend.prototype.instanceWidget = function(name, config) {
             this.widgets[name] = new Gauge(name, config);
             break;
         case 'leaderboard': 
-            this.widgets[name] = new Leaderboard(name, config);
+            this.widgets[name] = new Leaderboard(name, config, format[1]);
             break;
         default:
             util.error('not valid metric type'); 
