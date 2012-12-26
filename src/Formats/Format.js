@@ -1,3 +1,11 @@
+/*
+ * statsd-ducksboard-backend
+ * https://github.com/yunait/statsd-ducksboard-backend
+ *
+ * Copyright (c) 2012 Yunait
+ * Licensed under the MIT licenses.
+ */
+
 function Format(name, config){
     var self = this;
 
