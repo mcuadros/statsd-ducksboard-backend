@@ -1,13 +1,13 @@
 {
     "name": "statsd-ducksboard-backend",
     "description": "A StatsD backend that sends metrics to Ducksboard",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "author": "Máximo Cuadros <maximo@yunait.com>",
     "homepage": "https://github.com/yunait/statsd-ducksboard-backend",
   
     "repository": {
         "type": "git",
-        "url": "git@github.com:yunait/statsd-librato-backend.git"
+        "url": "git@github.com:yunait/statsd-ducksboard-backend.git"
     },
   
     "keywords": [
