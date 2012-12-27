@@ -1,6 +1,6 @@
 Quick and dirty metrics.yaml example:
 
-```
+```yaml
 ---
 metrics:
     gearman.ymailer.iunaites.done:
