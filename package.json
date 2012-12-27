@@ -1,7 +1,7 @@
 {
     "name": "statsd-ducksboard-backend",
     "description": "A StatsD backend that sends metrics to Ducksboard",
-    "version": "0.1alpha",
+    "version": "0.0.1",
     "author": "Máximo Cuadros <maximo@yunait.com>",
     "homepage": "https://github.com/yunait/statsd-ducksboard-backend",
   
